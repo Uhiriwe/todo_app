@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
                       print("Auth state changed. User: ${user?.uid}");
                     }
                     if (user != null) {
-                      return const HomeScreen();
+                      return const OnboardingScreen();
                     } else {
                       return const LoginScreen();
                     }

@@ -10,36 +10,42 @@ class OnboardingScreen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.Webp'),
+            image: AssetImage('assets/background2.Webp'),
             fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Welcome to Todo App!',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0), // Optional: Add padding to the bottom
+                child: SizedBox(
+                  height: 50,
+                  width: double.infinity, // Make the button full-width
+                  child: ElevatedButton(
+                    child: Text(
+                      'Get Started',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => SignupScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff1d2630), // Set the background color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Set the border radius
+                      ),
+                    ),
+                  ),
                 ),
               ),
-
-              SizedBox(height: 50),
-
-              ElevatedButton(
-                child: Text('Get Started'),
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => SignupScreen()),
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
-
   }
 }

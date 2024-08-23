@@ -53,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.white,
                 ),
               ),
+              SizedBox(height: 30),
               TextField(
                 controller: _emailController,
                 style: TextStyle(color: Colors.white),
@@ -87,7 +88,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintStyle: TextStyle(color: Colors.white60),
                 ),
               ),
-              SizedBox(height: 50),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Implement forgot password functionality
+                    },
+                    child: Text(
+                      "Forgot Password ?",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
               SizedBox(
                 height: 50,
                 width: MediaQuery.of(context).size.width / 1.5,
@@ -97,8 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       User? user = (await _auth.signInWithEmailAndPassword(
                         email: _emailController.text,
                         password: _passController.text,
-                      ))
-                          .user;
+                      )).user;
                       if (user != null) {
                         Navigator.push(
                           context,
@@ -112,36 +130,94 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Handle error, show a message to the user
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Color(0xff1d2630),
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: Text(
                     "Login",
-                    style: TextStyle(color: Colors.indigo, fontSize: 18),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               Text(
                 "OR",
                 style: TextStyle(
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 20,),
-              TextButton(
-                  onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SignupScreen(), // Correct usage
-                      ),
-                    );
+              SizedBox(height: 20),
+              SizedBox(
+                height: 50,
+                width: MediaQuery.of(context).size.width / 1.5,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement Google sign-in
                   },
-                  child: Text(
-                    "Create Account",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
+                  icon: Icon(Icons.g_mobiledata, color: Colors.white),
+                  label: Text(
+                    "Login with Google",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  )),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                height: 50,
+                width: MediaQuery.of(context).size.width / 1.5,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement GitHub sign-in
+                  },
+                  icon: Icon(Icons.code, color: Colors.white),
+                  label: Text(
+                    "Login with GitHub",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text("You don't have an account?",
+                    style: TextStyle(color: Colors.white),),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignupScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      " Sign Up",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todo_app/home_screen.dart';
-import 'package:todo_app/login_screen.dart';  // Import the LoginScreen
+import 'package:todo_app/login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -53,6 +53,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   color: Colors.white,
                 ),
               ),
+              SizedBox(height: 30),
               TextField(
                 controller: _emailController,
                 style: TextStyle(color: Colors.white),
@@ -93,23 +94,34 @@ class _SignupScreenState extends State<SignupScreen> {
                 width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton(
                   onPressed: () async {
-                    User? user = (await _auth.createUserWithEmailAndPassword(
-                      email: _emailController.text,
-                      password: _passController.text,
-                    ))
-                        .user;
-                    if (user != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
-                        ),
-                      );
+                    try {
+                      User? user = (await _auth.createUserWithEmailAndPassword(
+                        email: _emailController.text,
+                        password: _passController.text,
+                      )).user;
+                      if (user != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print(e);
+                      // Handle error, show a message to the user
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Color(0xff1d2630),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: Text(
                     "Register",
-                    style: TextStyle(color: Colors.indigo, fontSize: 18),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -121,20 +133,62 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               SizedBox(height: 20),
+              SizedBox(
+                height: 50,
+                width: MediaQuery.of(context).size.width / 1.5,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement Google sign-up
+                  },
+                  icon: Icon(Icons.g_mobiledata, color: Colors.white),
+                  label: Text(
+                    "Sign up with Google",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                height: 50,
+                width: MediaQuery.of(context).size.width / 1.5,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: Implement GitHub sign-up
+                  },
+                  icon: Icon(Icons.code, color: Colors.white),
+                  label: Text(
+                    "Sign up with GitHub",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LoginScreen(),  // Ensure LoginScreen is defined/imported
+                      builder: (context) => LoginScreen(),
                     ),
                   );
                 },
                 child: Text(
-                  "Login",
+                  "Already have an account? Login",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                    color: Colors.blue,
+                    fontSize: 16,
                   ),
                 ),
               ),
