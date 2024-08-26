@@ -7,6 +7,7 @@ import 'package:todo_app/login_screen.dart';
 import 'package:todo_app/signup_screen.dart';
 import 'package:todo_app/home_screen.dart';
 import 'package:todo_app/onboarding_screen.dart';
+import 'package:todo_app/verification_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +71,13 @@ class MyApp extends StatelessWidget {
                       return const OnboardingScreen();
                     } else {
                       return const LoginScreen();
+                      if(snapshot.data.emailVerified == true){
+                        return const HomeScreen();
+                      }
                     }
+                    else{
+                      return const VerificationScreen();
+                  }
                   }
                   return const Scaffold(
                     body: Center(
