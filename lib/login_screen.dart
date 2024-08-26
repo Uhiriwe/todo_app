@@ -14,12 +14,67 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
+  String _errorMessage = '';
 
   @override
   void dispose() {
     _emailController.dispose();
     _passController.dispose();
     super.dispose();
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _login() async {
+    setState(() {
+      _errorMessage = '';
+    });
+
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passController.text,
+      );
+
+      if (userCredential.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        if (e.code == 'user-not-found') {
+          _errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          _errorMessage = 'Wrong password provided for that user.';
+        } else {
+          _errorMessage = 'An error occurred: ${e.message}';
+        }
+      });
+      _showErrorDialog(_errorMessage);
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred.';
+      });
+      _showErrorDialog(_errorMessage);
+    }
   }
 
   @override
@@ -96,12 +151,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       // TODO: Implement forgot password functionality
                     },
-                    child: Text(
+                    child: InkWell(onTap: (){
+                      navigator.push(context,MaterialPageRoute(builder: (context) => Forgotpasword,))
+                    }, child: Text(
                       "Forgot Password ?",
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: 14,
-                      ),
+                      ),)
                     ),
                   ),
                 ],
@@ -111,25 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 50,
                 width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      User? user = (await _auth.signInWithEmailAndPassword(
-                        email: _emailController.text,
-                        password: _passController.text,
-                      )).user;
-                      if (user != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      print(e);
-                      // Handle error, show a message to the user
-                    }
-                  },
+                  onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Color(0xff1d2630),
@@ -192,7 +231,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
