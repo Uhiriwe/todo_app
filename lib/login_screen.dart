@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todo_app/home_screen.dart';
 import 'package:todo_app/signup_screen.dart';
+import 'package:todo_app/forgotpassword.dart'; // Make sure this import is correct
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -149,16 +150,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      // TODO: Implement forgot password functionality
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Forgotpassword()),
+                      );
                     },
-                    child: InkWell(onTap: (){
-                      navigator.push(context,MaterialPageRoute(builder: (context) => Forgotpasword,))
-                    }, child: Text(
-                      "Forgot Password ?",
+                    child: Text(
+                      "Forgot Password?",
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: 14,
-                      ),)
+                      ),
                     ),
                   ),
                 ],
@@ -235,8 +237,10 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("You don't have an account?",
-                    style: TextStyle(color: Colors.white),),
+                  Text(
+                    "You don't have an account?",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.push(

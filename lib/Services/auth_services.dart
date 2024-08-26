@@ -35,4 +35,22 @@ class AuthServices{
       return null;
     }
   }
+  //forgot password
+  Future<void> sendPasswordResetLink (String email) async{
+    try{
+      await _auth.sendPasswordResetEmail(email: email);
+    }
+    catch(e){
+      print(e.toString());
+    }
+  }
+  Future<void> sendEmailVerificationLink () async{
+    try{
+      await _auth.currentUser?.sendEmailVerification();
+    }
+    catch(e){
+      print(e.toString());
+    }
+  }
+
 }
