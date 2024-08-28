@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo_app/home_screen.dart';
 import 'package:todo_app/login_screen.dart';
+import 'package:todo_app/verification_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -12,6 +14,7 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
 
@@ -20,6 +23,68 @@ class _SignupScreenState extends State<SignupScreen> {
     _emailController.dispose();
     _passController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signUpWithEmailAndPassword() async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passController.text,
+      );
+      if (userCredential.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerificationScreen(user: userCredential.user!),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void> _signUpWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+      if (googleAuth?.accessToken != null && googleAuth?.idToken != null) {
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
+
+        UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+        if (userCredential.user != null) {
+          if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+            // This is a new user
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          } else {
+            // This user already exists
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('You already have an account. Please login.')),
+            );
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginScreen()),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign up with Google: $e')),
+      );
+    }
   }
 
   @override
@@ -93,25 +158,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 height: 50,
                 width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      User? user = (await _auth.createUserWithEmailAndPassword(
-                        email: _emailController.text,
-                        password: _passController.text,
-                      )).user;
-                      if (user != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      print(e);
-                      // Handle error, show a message to the user
-                    }
-                  },
+                  onPressed: _signUpWithEmailAndPassword,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Color(0xff1d2630),
@@ -137,9 +184,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 height: 50,
                 width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Google sign-up
-                  },
+                  onPressed: _signUpWithGoogle,
                   icon: Icon(Icons.g_mobiledata, color: Colors.white),
                   label: Text(
                     "Sign up with Google",

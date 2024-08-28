@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo_app/home_screen.dart';
 import 'package:todo_app/signup_screen.dart';
-import 'package:todo_app/forgotpassword.dart'; // Make sure this import is correct
+import 'package:todo_app/forgotpassword.dart';
+import 'package:todo_app/verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -54,10 +56,19 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (userCredential.user != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
+        if (userCredential.user!.emailVerified) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerificationScreen(user: userCredential.user!),
+            ),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -75,6 +86,32 @@ class _LoginScreenState extends State<LoginScreen> {
         _errorMessage = 'An unexpected error occurred.';
       });
       _showErrorDialog(_errorMessage);
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+      if (googleAuth?.accessToken != null && googleAuth?.idToken != null) {
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
+
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+        if (userCredential.user != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        }
+      }
+    } catch (e) {
+      print(e);
+      _showErrorDialog('Failed to sign in with Google: $e');
     }
   }
 
@@ -197,9 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 50,
                 width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Google sign-in
-                  },
+                  onPressed: signInWithGoogle,
                   icon: Icon(Icons.g_mobiledata, color: Colors.white),
                   label: Text(
                     "Login with Google",

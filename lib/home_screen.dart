@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color(0xff1d2630),
       appBar: AppBar(
         backgroundColor: const Color(0xff1d2630),
+        foregroundColor: Colors.white,
         title: const Text(
           "Todo",
           style: TextStyle(color: Colors.white),

@@ -6,8 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/login_screen.dart';
 import 'package:todo_app/signup_screen.dart';
 import 'package:todo_app/home_screen.dart';
-import 'package:todo_app/onboarding_screen.dart';
 import 'package:todo_app/verification_screen.dart';
+import 'package:todo_app/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,17 +67,15 @@ class MyApp extends StatelessWidget {
                     if (kDebugMode) {
                       print("Auth state changed. User: ${user?.uid}");
                     }
-                    if (user != null) {
-                      return const OnboardingScreen();
-                    } else {
+                    if (user == null) {
                       return const LoginScreen();
-                      if(snapshot.data.emailVerified == true){
+                    } else {
+                      if (user.emailVerified) {
                         return const HomeScreen();
+                      } else {
+                        return VerificationScreen(user: user);
                       }
                     }
-                    else{
-                      return const VerificationScreen();
-                  }
                   }
                   return const Scaffold(
                     body: Center(

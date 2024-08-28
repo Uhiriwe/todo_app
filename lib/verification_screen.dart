@@ -1,101 +1,129 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:todo_app/login_screen.dart';
 
 class VerificationScreen extends StatefulWidget {
-  const VerificationScreen({super.key});
+  final User user;
+  const VerificationScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<VerificationScreen> createState() => _VerificationScreenState();
 }
 
 class _VerificationScreenState extends State<VerificationScreen> {
-  TextEditingController _codeController = TextEditingController();
-  bool _isResendEnabled = false;
-  int _remainingTime = 30; // Countdown timer in seconds
+  bool _isEmailVerified = false;
+  Timer? _timer;
+  bool _canResendEmail = false;
 
   @override
   void initState() {
     super.initState();
-    startTimer();
+    _isEmailVerified = widget.user.emailVerified;
+    if (!_isEmailVerified) {
+      sendVerificationEmail();
+      _timer = Timer.periodic(
+        const Duration(seconds: 3),
+            (_) => checkEmailVerified(),
+      );
+    }
   }
 
-  void startTimer() {
-    Future.delayed(Duration(seconds: 1), () {
-      if (_remainingTime > 0) {
-        setState(() {
-          _remainingTime--;
-        });
-        startTimer();
-      } else {
-        setState(() {
-          _isResendEnabled = true;
-        });
-      }
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> checkEmailVerified() async {
+    await widget.user.reload();
+    setState(() {
+      _isEmailVerified = widget.user.emailVerified;
     });
+    if (_isEmailVerified) {
+      _timer?.cancel();
+      // Sign out the user before redirecting to login screen
+      await FirebaseAuth.instance.signOut();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email verified. Please log in.')),
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      await widget.user.sendEmailVerification();
+      setState(() => _canResendEmail = false);
+      await Future.delayed(const Duration(seconds: 60));
+      setState(() => _canResendEmail = true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error sending email: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff1d2630),
       appBar: AppBar(
-        title: Text('Verification'),
+        backgroundColor: Color(0xff1d2630),
+        foregroundColor: Colors.white,
+        title: const Text('Verify Email'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Enter the verification code sent to your email/phone:',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            SizedBox(height: 20.0),
-            TextField(
-              controller: _codeController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Verification Code',
-              ),
-            ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-
-                print('Verification code submitted: ${_codeController.text}');
-              },
-              child: Text('Verify'),
-            ),
-            SizedBox(height: 20.0),
-            Text(
-              _isResendEnabled
-                  ? 'Didn\'t receive the code?'
-                  : 'Resend code in $_remainingTime seconds',
-              style: TextStyle(color: Colors.grey),
+            const Text(
+              'A verification email has been sent to your email.',
+              style: TextStyle(fontSize: 18, color: Colors.white),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 10.0),
-            if (_isResendEnabled)
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _remainingTime = 30;
-                    _isResendEnabled = false;
-                  });
-                  startTimer();
-                  // Handle resend code logic here
-                  print('Resend code');
-                },
-                child: Text('Resend Code'),
+            const SizedBox(height: 24),
+            const Text(
+              'Please check your email and click on the verification link to verify your account.',
+              style: TextStyle(fontSize: 16, color: Colors.white60),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+                backgroundColor: Colors.white,
+                foregroundColor: Color(0xff1d2630),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
+              icon: const Icon(Icons.email, size: 32),
+              label: Text(
+                _canResendEmail ? 'Resend Email' : 'Email Sent',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              onPressed: _canResendEmail ? sendVerificationEmail : null,
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.blue, fontSize: 16),
+              ),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _codeController.dispose();
-    super.dispose();
   }
 }
