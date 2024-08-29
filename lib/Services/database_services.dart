@@ -4,20 +4,22 @@ import 'package:todo_app/model/todo_model.dart';
 
 class DatabaseServices {
   final CollectionReference todoCollection = FirebaseFirestore.instance.collection("todos");
+  final CollectionReference usersCollection = FirebaseFirestore.instance.collection("users");
+
   User? user = FirebaseAuth.instance.currentUser;
 
-  // Add
+  // Add a new task
   Future<DocumentReference> addTodoItem(String title, String description) async {
     return await todoCollection.add({
       'uid': user!.uid,
       'title': title,
       'description': description,
       'completed': false,
-      'createdAt': FieldValue.serverTimestamp()
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
-  // Update
+  // Update a task
   Future<void> updateTodo(String id, String title, String description) async {
     return await todoCollection.doc(id).update({
       'title': title,
@@ -25,17 +27,17 @@ class DatabaseServices {
     });
   }
 
-  // Update status
+  // Update the completion status of a task
   Future<void> updateTodoStatus(String id, bool completed) async {
     return await todoCollection.doc(id).update({'completed': completed});
   }
 
-  // Delete task
+  // Delete a task
   Future<void> deleteTodoTask(String id) async {
     return await todoCollection.doc(id).delete();
   }
 
-  // Get pending tasks
+  // Get a stream of pending tasks
   Stream<List<Todo>> get todos {
     return todoCollection
         .where('uid', isEqualTo: user!.uid)
@@ -44,7 +46,7 @@ class DatabaseServices {
         .map(_todoListFromSnapshot);
   }
 
-  // Get completed tasks
+  // Get a stream of completed tasks
   Stream<List<Todo>> get completedTodos {
     return todoCollection
         .where('uid', isEqualTo: user!.uid)
@@ -63,5 +65,14 @@ class DatabaseServices {
         timestamp: doc['createdAt'] ?? '',
       );
     }).toList();
+  }
+
+  // Check if the current user is a staff member
+  Future<bool> isStaffMember(String uid) async {
+    DocumentSnapshot userDoc = await usersCollection.doc(uid).get();
+    if (userDoc.exists && userDoc.data() != null) {
+      return (userDoc.data() as Map<String, dynamic>)['isStaffMember'] ?? false;
+    }
+    return false;
   }
 }

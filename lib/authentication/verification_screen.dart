@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:todo_app/login_screen.dart';
+import 'package:todo_app/authentication/login_screen.dart';
 
 class VerificationScreen extends StatefulWidget {
   final User user;

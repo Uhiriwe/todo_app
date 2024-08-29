@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/signup_screen.dart';
+import 'package:todo_app/authentication/signup_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({Key? key}) : super(key: key);

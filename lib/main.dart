@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo_app/login_screen.dart';
-import 'package:todo_app/signup_screen.dart';
+import 'package:todo_app/authentication/login_screen.dart';
+import 'package:todo_app/authentication/signup_screen.dart';
 import 'package:todo_app/home_screen.dart';
-import 'package:todo_app/verification_screen.dart';
+import 'package:todo_app/authentication/verification_screen.dart';
 import 'package:todo_app/onboarding_screen.dart';
 
 void main() async {

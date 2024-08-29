@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo_app/home_screen.dart';
-import 'package:todo_app/login_screen.dart';
-import 'package:todo_app/verification_screen.dart';
+import 'package:todo_app/authentication//login_screen.dart';
+import 'package:todo_app/authentication//verification_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);

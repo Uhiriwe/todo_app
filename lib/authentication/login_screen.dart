@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo_app/home_screen.dart';
-import 'package:todo_app/signup_screen.dart';
-import 'package:todo_app/forgotpassword.dart';
-import 'package:todo_app/verification_screen.dart';
+import 'package:todo_app/authentication/signup_screen.dart';
+import 'package:todo_app/authentication/forgotpassword.dart';
+import 'package:todo_app/authentication/verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   String _errorMessage = '';
+  bool _isStaff = false;
 
   @override
   void dispose() {
@@ -57,6 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (userCredential.user != null) {
         if (userCredential.user!.emailVerified) {
+          if (_isStaff) {
+            print('Staff member logged in');
+          }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -183,8 +187,34 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _isStaff,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _isStaff = value ?? false;
+                          });
+                        },
+                        fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.white.withOpacity(.32);
+                          }
+                          return Colors.white;
+                        }),
+                        checkColor: Color(0xff1d2630),
+                      ),
+                      Text(
+                        "Staff",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
